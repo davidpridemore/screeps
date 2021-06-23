@@ -1,8 +1,13 @@
 var roleHarvester = require('role.harvester');
+var roleWorker3 = require('role.worker3');
+var roleCarrier = require('role.carrier');
 var roleUpgrader = require('role.upgrader');
 
 
 var maxHarvesters = 2;
+var maxWorker3s = 3;
+var maxCarriers = 1;
+var maxUpgraders = 2;
 
 module.exports.loop = function () {
 
@@ -14,13 +19,19 @@ module.exports.loop = function () {
     }
 
     var harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-    console.log('Harvesters: ' + harvesters.length);
+    var worker3s = _.filter(Game.creeps, (creep) => creep.memory.role == 'workerthree');
+    var carriers = _.filter(Game.creeps, (creep) => creep.memory.role == 'carrier');
+    var upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+    // console.log('Harvesters: ' + harvesters.length);
 
     if(harvesters.length < maxHarvesters) {
-        var newName = 'Harvester' + Game.time;
-        console.log('Spawning new harvester: ' + newName);
-        Game.spawns['Spawn1'].spawnCreep([WORK,CARRY,MOVE], newName, 
-            {memory: {role: 'harvester'}});
+        spawnCreepWithType('harvester');
+    } else if(harvesters.length >= maxHarvesters && worker3s.length < maxWorker3s) {
+        spawnCreepWithType('workerthree');
+    } else if(worker3s.length >= maxWorker3s && carriers.length < maxCarriers) {
+        spawnCreepWithType('carrier');
+    } else if (carriers.length >= maxCarriers && upgraders.length < maxUpgraders) {
+        spawnCreepWithType('upgrader');
     }
     
     if(Game.spawns['Spawn1'].spawning) { 
@@ -40,5 +51,31 @@ module.exports.loop = function () {
         if(creep.memory.role == 'upgrader') {
             roleUpgrader.run(creep);
         }
+        if(creep.memory.role == 'workerthree') {
+            roleWorker3.run(creep);
+        }
+        if(creep.memory.role == 'carrier') {
+            roleCarrier.run(creep);
+        }
     }
+}
+
+function spawnCreepWithType(type) {
+    var body =[];
+    switch(type) {
+        case 'harvester':
+        case 'builder':
+        case 'carrier': body = [WORK, CARRY, MOVE];
+            break;
+        case 'workerthree': body = [WORK, WORK, WORK];
+            break;
+    }
+    var newName = type[0].toUpperCase() + type.substring(1) + Game.time;
+    Game.spawns['Spawn1'].spawnCreep(body, newName, 
+        {memory: {role: type}});
+    if(Game.spawns['Spawn1'].spawning) {
+        console.log('Spawning new ' + type + ': ' + newName);
+    }
+        
+        
 }

@@ -1,5 +1,4 @@
 var roleHarvester = {
-
     /** @param {Creep} creep **/
     run: function(creep) {
         if(creep.store.energy == 0) { // energy is empty
@@ -8,12 +7,12 @@ var roleHarvester = {
             creep.memory.harvesting = false;
         } 
         
-        if(creep.memory.harvesting == true) {
+        if(creep.memory.harvesting == true) { // energy is empty
             var sources = creep.room.find(FIND_SOURCES);
             if(creep.harvest(sources[0]) == ERR_NOT_IN_RANGE) {
                 creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#FFFF00'}});
             }
-        } else {
+        } else { // energy should be full so they'll look for supplemental activities to work on
             var targets = creep.room.find(FIND_STRUCTURES, {
                     filter: (structure) => {
                         return (structure.structureType == STRUCTURE_EXTENSION || structure.structureType == STRUCTURE_SPAWN) &&
